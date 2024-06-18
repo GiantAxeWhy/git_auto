@@ -5,6 +5,9 @@ use std::io;
 use std::process::Command;
 use std::path::Path;
 use std::env;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::thread::sleep;
+
 
 #[cfg(target_os = "windows")]
 use winapi::um::winbase::SetThreadExecutionState;
@@ -20,8 +23,18 @@ fn main() {
     let mut dir = String::new();
     io::stdin().read_line(&mut dir).expect("读取输入失败");
     let dir = dir.trim(); // 移除可能的换行符
+    println!("请输入执行提交的Unix时间戳（秒）:");
+    let mut timestamp = String::new();
+    io::stdin().read_line(&mut timestamp).expect("读取时间失败");
+    let timestamp: u64 = timestamp.trim().parse().expect("时间格式错误");
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).expect("时间读取失败").as_secs();
+    if timestamp > now {
+        let wait_time = timestamp - now;
+        println!("等待 {} 秒...", wait_time);
+        sleep(Duration::from_secs(wait_time));
+    }
 
-    // 切换到用户指定的目录
+    // 切换到指定的目录
     if env::set_current_dir(Path::new(dir)).is_err() {
         println!("错误：无法切换到指定目录");
         allow_sleep();
