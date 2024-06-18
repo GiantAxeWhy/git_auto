@@ -89,7 +89,7 @@ fn run_git_command(args: &[&str]) -> Result<(), String> {
     let output = Command::new(args[0])
     .args(&args[1..])
     .output()
-    .map_err(|e| format!("执行命令失败: {}", e))?;
+    .map_err(|e| format!("执行命令失败: { }", e))?;
 
 if output.status.success() {
     if !output.stdout.is_empty() {
