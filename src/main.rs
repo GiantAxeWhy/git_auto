@@ -77,7 +77,7 @@ fn main() {
         println!("Git commit 失败: {}", e);
     }
     if let Err(e) = run_git_command(&["git", "push"]) {
-        println!("Git push 失败: {}", e);
+        println!("Git push 失败: {  }", e);
     } else {
         println!("Git 操作成功执行");
     }
