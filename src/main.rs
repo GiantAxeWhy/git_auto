@@ -1,4 +1,4 @@
-#[cfg(target_os = "windows")]
+#[cfg(feature = "windows-specific")]
 extern crate winapi;
 
 use std::io;
@@ -9,9 +9,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::thread::sleep;
 
 
-#[cfg(target_os = "windows")]
+#[cfg(feature = "windows-specific")]
 use winapi::um::winbase::SetThreadExecutionState;
-#[cfg(target_os = "windows")]
+#[cfg(feature = "windows-specific")]
 use winapi::um::winnt::{ES_CONTINUOUS, ES_SYSTEM_REQUIRED};
 
 fn main() {
@@ -114,9 +114,12 @@ fn prevent_sleep() {
 
 #[cfg(not(target_os = "windows"))]
 fn prevent_sleep() {
-    let _ = Command::new("systemctl")
-        .args(&["mask", "sleep.target", "suspend.target", "hibernate.target", "hybrid-sleep.target"])
-        .status();
+    // 对于 macOS 和 Linux，使用 caffeinate 和 systemd 方法防止休眠
+    #[cfg(target_os = "macos")]
+    Command::new("caffeinate").arg("-w").arg(std::process::id().to_string()).spawn().expect("failed to execute caffeinate");
+
+    #[cfg(target_os = "linux")]
+    Command::new("systemctl").args(&["mask", "--now", "sleep.target", "suspend.target", "hibernate.target", "hybrid-sleep.target"]).output().expect("Failed to disable sleep");
 }
 
 #[cfg(target_os = "windows")]
@@ -128,7 +131,10 @@ fn allow_sleep() {
 
 #[cfg(not(target_os = "windows"))]
 fn allow_sleep() {
-    let _ = Command::new("systemctl")
-        .args(&["unmask", "sleep.target", "suspend.target", "hibernate.target", "hybrid-sleep.target"])
-        .status();
+    // 对于 macOS 和 Linux，结束 caffeinate 进程或者解除 systemd 限制
+    #[cfg(target_os = "macos")]
+    Command::new("killall").arg("caffeinate").output().expect("Failed to kill caffeinate");
+
+    #[cfg(target_os = "linux")]
+    Command::new("systemctl").args(&["unmask", "--now", "sleep.target", "suspend.target", "hibernate.target", "hybrid-sleep.target"]).output().expect("Failed to enable sleep");
 }
