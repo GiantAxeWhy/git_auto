@@ -99,7 +99,7 @@ if output.status.success() {
 } else {
     let stderr_output = String::from_utf8_lossy(&output.stderr);
     Err(format!(
-        "命令失败，状态码：{}，错误输出：\n{}",
+        "命令失败，状态码：{ }，错误输出：\n{}",
         output.status, stderr_output
     ))
 }
