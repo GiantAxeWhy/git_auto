@@ -22,7 +22,7 @@ fn main() {
     println!("请输入文件夹地址:");
     let mut dir = String::new();
     io::stdin().read_line(&mut dir).expect("读取输入失败");
-    let dir = dir.trim(); // 移除可能的换行符
+    let dir = dir.trim();
     println!("请输入执行提交的Unix时间戳（秒）:");
     let mut timestamp = String::new();
     io::stdin().read_line(&mut timestamp).expect("读取时间失败");
